@@ -23,17 +23,13 @@
 			},
 			color: {
 				type: String,
-				default: '#f00'
+				default: '#fff'
 			},
 			opacity: {
 				type: Number,
 				default: 0.8
 			},
 			swing: {
-				type: Boolean,
-				default: true
-			},
-			swingOffset: {
 				type: Number,
 				default: 1
 			},
@@ -44,25 +40,30 @@
 			zIndex: {
 				type: Number,
 				default: null
+			},
+			resize: {
+				type: Boolean,
+				default: true
 			}
 		},
 		mounted() {
 
 			var self = this;
-			const HEIGHT = self.$el.offsetHeight;
-			const WIDTH = self.$el.offsetWidth;
-			const CONTEXT = self.$el.getContext('2d');
+			const CANVAS = self.$el;
+			const CONTEXT = CANVAS.getContext('2d');
+			var canvasHeight = CANVAS.offsetHeight;
+			var canvasWidth = CANVAS.offsetWidth;
 			var flakes = [];
 
-			self.$el.height = HEIGHT;
-			self.$el.width = WIDTH;
-			if (self.zIndex) this.$el.style.zIndex = self.zIndex;
+			CANVAS.height = canvasHeight;
+			CANVAS.width = canvasWidth;
+			CANVAS.style.zIndex = self.zIndex ? self.zIndex : 'auto';
 
 			function init() {
 				for (var i = 0; i < self.amount; i++) {
 					flakes.push({
-						x: random(0, WIDTH),
-						y: random(0, HEIGHT),
+						x: random(0, canvasWidth),
+						y: random(0, canvasHeight),
 						r: random(self.size, self.size * 2) / 2,
 						velX: 0,
 						velY: random(self.speed, self.speed * 2),
@@ -75,7 +76,7 @@
 
 			function snow() {
 				var img;
-				CONTEXT.clearRect(0, 0, WIDTH, HEIGHT);
+				CONTEXT.clearRect(0, 0, canvasWidth, canvasHeight);
 				for (var i = 0; i < self.amount; i++) {
 					var flake = flakes[i];
 
@@ -96,8 +97,8 @@
 
 					flake.velX = Math.abs(flake.velX) < Math.abs(self.wind) ? flake.velX + self.wind / 20 : self.wind;
 					flake.y = flake.y + flake.velY * 0.5;
-					flake.x = flake.x + (self.swing ? 0.4 * Math.cos(flake.swing += 0.03) * flake.opacity * self.swingOffset : 0) + flake.velX * 0.5;
-					if (flake.x > WIDTH + flake.r || flake.x < -flake.r || flake.y > HEIGHT + flake.r || flake.y < -flake.r) {
+					flake.x = flake.x + (self.swing ? 0.4 * Math.cos(flake.swing += 0.03) * flake.opacity * self.swing : 0) + flake.velX * 0.5;
+					if (flake.x > canvasWidth + flake.r || flake.x < -flake.r || flake.y > canvasHeight + flake.r || flake.y < -flake.r) {
 						reset(flake);
 					}
 				}
@@ -107,16 +108,16 @@
 			function reset(flake) {
 				var prevR = flake.r;
 				flake.r = random(self.size, self.size * 2) / 2;
-				if (flake.x > WIDTH + prevR) {
+				if (flake.x > canvasWidth + prevR) {
 					flake.x = -flake.r;
-					flake.y = random(0, HEIGHT);
+					flake.y = random(0, canvasHeight);
 				}
 				else if (flake.x < -prevR) {
-					flake.x = WIDTH + flake.r;
-					flake.y = random(0, HEIGHT);
+					flake.x = canvasWidth + flake.r;
+					flake.y = random(0, canvasHeight);
 				}
 				else {
-					flake.x = random(0, WIDTH);
+					flake.x = random(0, canvasWidth);
 					flake.y = -flake.r;
 				}
 				flake.velX = 0;
@@ -126,6 +127,23 @@
 			}
 
 			init();
+
+			if (self.resize) {
+				window.addEventListener('resize', function() {
+					var H0 = CANVAS.height,
+							W0 = CANVAS.width,
+							H1 = CANVAS.offsetHeight,
+							W1 = CANVAS.offsetWidth;
+
+					CANVAS.height = canvasHeight = H1;
+					CANVAS.width = canvasWidth = W1;
+					for (var i = 0; i < self.amount; i++) {
+						var flake = flakes[i];
+						flake.x = flake.x / W0 * W1;
+						flake.y = flake.y / H0 * H1;
+					}
+				});
+			}
 		}
 	}
 
@@ -151,7 +169,7 @@
 	}
 </script>
 
-<style>
+<style scoped>
 	.snowf-canvas {
 		position: absolute;
 		left: 0;

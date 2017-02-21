@@ -1,10 +1,11 @@
 {
   "name": "vue-snowf",
-  "version": "0.0.1",
-  "description": "Snowfall component for Vue.js, let it snow on your page! ❄",
-  "main": "dist/snowf.js",
+  "version": "0.0.2",
+  "description": "Snowfall component for Vue.js -- Let it snow on your page! ❄",
+  "main": "dist/vue-snowf.js",
   "scripts": {
-    "build": "webpack -p"
+    "dev": "webpack-dev-server --inline --hot",
+    "build": "webpack -p --config webpack.build.js"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,10 @@
     "css-loader": "^0.26.1",
     "vue-loader": "^11.0.0",
     "vue-template-compiler": "^2.1.10",
-    "webpack": "^2.2.1"
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
+  },
+  "dependencies": {
+    "vue": "^2.1.10"
   }
 }
